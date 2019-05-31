@@ -1,0 +1,226 @@
+
+version: '2'
+
+services:
+
+  zookeeper1:
+    extends:
+        file: base.yaml
+        service: zookeeper
+    container_name: zookeeper1
+    environment:
+        - ZOO_MY_ID=1
+        - ZOO_SERVERS=server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888
+  
+  zookeeper2:
+    extends:
+        file: base.yaml
+        service: zookeeper
+    container_name: zookeeper2
+    environment:
+        - ZOO_MY_ID=2
+        - ZOO_SERVERS=server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888
+  
+  zookeeper3:
+    extends:
+        file: base.yaml
+        service: zookeeper
+    container_name: zookeeper3
+    environment:
+        - ZOO_MY_ID=3
+        - ZOO_SERVERS=server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888
+  
+
+  kafka1:
+    extends:
+      file: base.yaml
+      service: kafka
+    container_name: kafka1
+    environment:
+        - KAFKA_BROKER_ID=1
+        - KAFKA_ZOOKEEPER_CONNECT=zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
+        # - KAFKA_MESSAGE_MAX_BYTES=1000012B
+        # - KAFKA_REPLICA_FETCH_MAX_BYTES=1048576B
+        # - KAFKA_REPLICA_FETCH_RESPONSE_MAX_BYTES=10485760B
+    depends_on:
+        - zookeeper1
+        - zookeeper2
+        - zookeeper3
+    # ports:
+    #     - 9092:9092
+
+  kafka2:
+    extends:
+      file: base.yaml
+      service: kafka
+    container_name: kafka2
+    environment:
+      - KAFKA_BROKER_ID=2
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
+      # - KAFKA_MESSAGE_MAX_BYTES=1000012B
+      # - KAFKA_REPLICA_FETCH_MAX_BYTES=1048576B
+      # - KAFKA_REPLICA_FETCH_RESPONSE_MAX_BYTES=10485760B
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+    # ports:
+    #     - 10092:9092
+
+  kafka3:
+    extends:
+      file: base.yaml
+      service: kafka
+    container_name: kafka3
+    environment:
+      - KAFKA_BROKER_ID=3
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
+      # - KAFKA_MESSAGE_MAX_BYTES=1000012B
+      # - KAFKA_REPLICA_FETCH_MAX_BYTES=1048576B
+      # - KAFKA_REPLICA_FETCH_RESPONSE_MAX_BYTES=10485760B
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+    # ports:
+    #     - 11092:9092
+
+
+  kafka4:
+    extends:
+      file: base.yaml
+      service: kafka
+    container_name: kafka4
+    environment:
+      - KAFKA_BROKER_ID=4
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
+      # - KAFKA_MESSAGE_MAX_BYTES=1000012B
+      # - KAFKA_REPLICA_FETCH_MAX_BYTES=1048576B
+      # - KAFKA_REPLICA_FETCH_RESPONSE_MAX_BYTES=10485760B
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+    # ports:
+    #     - 12092:9092
+
+
+  orderer1.example.com:
+    extends:
+      file: base.yaml
+      service: orderer
+    container_name: orderer1.example.com
+    environment:
+      - ORDERER_HOST=orderer1.example.com
+      - CONFIGTX_ORDERER_ORDERERTYPE=kafka
+      - CONFIGTX_ORDERER_KAFKA_BROKERS=[kafka1:9092,kafka2:9092,kafka3:9092,kafka4:9092]
+      - ORDERER_KAFKA_RETRY_SHORTINTERVAL=1s
+      - ORDERER_KAFKA_RETRY_SHORTTOTAL=30s
+      # - ORDERER_KAFKA_RETRY_LONGINTERVAL=30s
+      # - ORDERER_KAFKA_RETRY_LONGTOTAL=5m
+      - ORDERER_KAFKA_VERBOSE=true
+      - ORDERER_GENERAL_GENESISPROFILE=SampleInsecureKafka
+      - ORDERER_ABSOLUTEMAXBYTES=10MB
+      - ORDERER_PREFERREDMAXBYTES=512KB
+    volumes:
+      - ./channel/crypto-config-orderers/ordererOrganizations/example.com/orderers/orderer1.example.com/:/etc/hyperledger/crypto/orderer
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - kafka4
+    ports:
+      - 7050:7050
+    # extra_hosts:
+    #   # OrgA
+    #   - "ca.orga.example.com:${IP_OrgA}"
+    #   - "peer1.orga.example.com:${IP_OrgA}"
+    #   - "peer2.orga.example.com:${IP_OrgA}"
+    #   # OrgB
+    #   - "ca.orgb.example.com:${IP_OrgB}"
+    #   - "peer1.orgb.example.com:${IP_OrgB}"
+    #   - "peer2.orgb.example.com:${IP_OrgB}"
+    #   # OrgC
+    #   - "ca.orgc.example.com:${IP_OrgC}"
+    #   - "peer1.orgc.example.com:${IP_OrgC}"
+    #   - "peer2.orgc.example.com:${IP_OrgC}"
+
+  orderer2.example.com:
+    extends:
+      file: base.yaml
+      service: orderer
+    container_name: orderer2.example.com
+    environment:
+      - ORDERER_HOST=orderer2.example.com
+      - CONFIGTX_ORDERER_ORDERERTYPE=kafka
+      - CONFIGTX_ORDERER_KAFKA_BROKERS=[kafka1:9092,kafka2:9092,kafka3:9092,kafka4:9092]
+      - ORDERER_KAFKA_RETRY_SHORTINTERVAL=1s
+      - ORDERER_KAFKA_RETRY_SHORTTOTAL=30s
+      # - ORDERER_KAFKA_RETRY_LONGINTERVAL=30s
+      # - ORDERER_KAFKA_RETRY_LONGTOTAL=5m
+      - ORDERER_KAFKA_VERBOSE=true
+      - ORDERER_GENERAL_GENESISPROFILE=SampleInsecureKafka
+      - ORDERER_ABSOLUTEMAXBYTES=10MB
+      - ORDERER_PREFERREDMAXBYTES=512KB
+    volumes:
+      - ./channel/crypto-config-orderers/ordererOrganizations/example.com/orderers/orderer2.example.com/:/etc/hyperledger/crypto/orderer
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - kafka4
+    ports:
+      - 8050:7050
+    # extra_hosts:
+    #   # OrgA
+    #   - "ca.orga.example.com:${IP_OrgA}"
+    #   - "peer1.orga.example.com:${IP_OrgA}"
+    #   - "peer2.orga.example.com:${IP_OrgA}"
+    #   # OrgB
+    #   - "ca.orgb.example.com:${IP_OrgB}"
+    #   - "peer1.orgb.example.com:${IP_OrgB}"
+    #   - "peer2.orgb.example.com:${IP_OrgB}"
+    #   # OrgC
+    #   - "ca.orgc.example.com:${IP_OrgC}"
+    #   - "peer1.orgc.example.com:${IP_OrgC}"
+    #   - "peer2.orgc.example.com:${IP_OrgC}"
+
+  orderer3.example.com:
+    extends:
+      file: base.yaml
+      service: orderer
+    container_name: orderer3.example.com
+    environment:
+      - ORDERER_HOST=orderer3.example.com
+      - CONFIGTX_ORDERER_ORDERERTYPE=kafka
+      - CONFIGTX_ORDERER_KAFKA_BROKERS=[kafka1:9092,kafka2:9092,kafka3:9092,kafka4:9092]
+      - ORDERER_KAFKA_RETRY_SHORTINTERVAL=1s
+      - ORDERER_KAFKA_RETRY_SHORTTOTAL=30s
+      # - ORDERER_KAFKA_RETRY_LONGINTERVAL=30s
+      # - ORDERER_KAFKA_RETRY_LONGTOTAL=5m
+      - ORDERER_KAFKA_VERBOSE=true
+      - ORDERER_GENERAL_GENESISPROFILE=SampleInsecureKafka
+      - ORDERER_ABSOLUTEMAXBYTES=10MB
+      - ORDERER_PREFERREDMAXBYTES=512KB
+    volumes:
+      - ./channel/crypto-config-orderers/ordererOrganizations/example.com/orderers/orderer3.example.com/:/etc/hyperledger/crypto/orderer
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - kafka4
+    ports:
+      - 9050:7050
+    # extra_hosts:
+    #   # OrgA
+    #   - "ca.orga.example.com:${IP_OrgA}"
+    #   - "peer1.orga.example.com:${IP_OrgA}"
+    #   - "peer2.orga.example.com:${IP_OrgA}"
+    #   # OrgB
+    #   - "ca.orgb.example.com:${IP_OrgB}"
+    #   - "peer1.orgb.example.com:${IP_OrgB}"
+    #   - "peer2.orgb.example.com:${IP_OrgB}"
+    #   # OrgC
+    #   - "ca.orgc.example.com:${IP_OrgC}"
+    #   - "peer1.orgc.example.com:${IP_OrgC}"
+    #   - "peer2.orgc.example.com:${IP_OrgC}"

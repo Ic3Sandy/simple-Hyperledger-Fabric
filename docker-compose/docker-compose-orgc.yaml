@@ -1,0 +1,92 @@
+version: '2'
+
+services:
+
+  ca.orgc.example.com:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-orgc
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.orgc.example.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/479b731df49ac896864326f6585ef075a81bb77d54166b0d5b9117ee9edc858e_sk
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.orgc.example.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/479b731df49ac896864326f6585ef075a81bb77d54166b0d5b9117ee9edc858e_sk
+    ports:
+      - 9054:7054
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ./channel/crypto-config-orgc/peerOrganizations/orgc.example.com/ca:/etc/hyperledger/fabric-ca-server-config
+      - ./config/fabric-ca-server-orgc.yaml:/etc/hyperledger/fabric-ca-server/fabric-ca-server-config.yaml
+    container_name: ca_peerOrgC
+  
+  peer1.orgc.example.com:
+    container_name: peer1.orgc.example.com
+    extends:
+      file: base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.orgc.example.com
+      - CORE_PEER_LOCALMSPID=OrgCMSP
+      - CORE_PEER_ADDRESS=peer1.orgc.example.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer2.orgc.example.com:7051      
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.orgc.example.com:7051
+    ports:
+      - 9051:7051
+      - 9053:7053
+    volumes:
+        - ./channel/crypto-config-orgc/peerOrganizations/orgc.example.com/peers/peer1.orgc.example.com/:/etc/hyperledger/crypto/peer
+    extra_hosts:
+      - "orderer1.example.com:${IP_Orderer1}"
+      - "orderer2.example.com:${IP_Orderer2}"
+      - "orderer3.example.com:${IP_Orderer3}"
+
+  peer2.orgc.example.com:
+    container_name: peer2.orgc.example.com
+    extends:
+      file: base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer2.orgc.example.com
+      - CORE_PEER_LOCALMSPID=OrgCMSP
+      - CORE_PEER_ADDRESS=peer2.orgc.example.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.orgc.example.com:7051      
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer2.orgc.example.com:7051
+    ports:
+      - 9056:7051
+      - 9058:7053
+    volumes:
+        - ./channel/crypto-config-orgc/peerOrganizations/orgc.example.com/peers/peer2.orgc.example.com/:/etc/hyperledger/crypto/peer
+    extra_hosts:
+      - "orderer1.example.com:${IP_Orderer1}"
+      - "orderer2.example.com:${IP_Orderer2}"
+      - "orderer3.example.com:${IP_Orderer3}"
+
+  # orderer3.example.com:
+  #   extends:
+  #     file: base.yaml
+  #     service: orderer
+  #   container_name: orderer3.example.com
+  #   environment:
+  #     - ORDERER_HOST=orderer3.example.com
+  #     - CONFIGTX_ORDERER_ORDERERTYPE=kafka
+  #     - CONFIGTX_ORDERER_KAFKA_BROKERS=[kafka1:9092,kafka2:10092,kafka3:11092,kafka4:12092]
+  #     - ORDERER_KAFKA_RETRY_SHORTINTERVAL=1s
+  #     - ORDERER_KAFKA_RETRY_SHORTTOTAL=30s
+  #     # - ORDERER_KAFKA_RETRY_LONGINTERVAL=30s
+  #     # - ORDERER_KAFKA_RETRY_LONGTOTAL=5m
+  #     - ORDERER_KAFKA_VERBOSE=true
+  #     - ORDERER_GENERAL_GENESISPROFILE=SampleInsecureKafka
+  #     - ORDERER_ABSOLUTEMAXBYTES=10MB
+  #     - ORDERER_PREFERREDMAXBYTES=512KB
+  #   volumes:
+  #     - ./channel/crypto-config-orderers/ordererOrganizations/example.com/orderers/orderer3.example.com/:/etc/hyperledger/crypto/orderer
+  #   ports:
+  #     - 9050:7050
+  #   extra_hosts:
+  #     - "kafka1:${IP_kafka1}"
+  #     - "kafka2:${IP_kafka2}"
+  #     - "kafka3:${IP_kafka3}"
+  #     - "kafka4:${IP_kafka4}"
+  #     - "orderer1.example.com:${IP_Orderer1}"
+  #     - "orderer3.example.com:${IP_Orderer3}"

@@ -1,0 +1,35 @@
+version: "2"
+
+services:
+
+  server:
+    image: node:10
+    container_name: server
+    restart: on-failure
+    working_dir: /home/node/
+    volumes:
+      - ../api:/home/node/
+      - ./fileDownload:/home/node/fileDownload
+      - ./fileUpload:/home/node/fileUpload
+      - ../docker-compose/channel:/home/node/channel
+    ports:
+      - 4000:4000
+    stdin_open: true
+    tty: true
+    extra_hosts:
+      # Orderer
+      - "orderer1.example.com:${IP_Orderer1}"
+      - "orderer2.example.com:${IP_Orderer2}"
+      - "orderer3.example.com:${IP_Orderer3}"
+      # OrgA
+      - "ca.orga.example.com:${IP_OrgA}"
+      - "peer1.orga.example.com:${IP_OrgA}"
+      - "peer2.orga.example.com:${IP_OrgA}"
+      # OrgB
+      - "ca.orgb.example.com:${IP_OrgB}"
+      - "peer1.orgb.example.com:${IP_OrgB}"
+      - "peer2.orgb.example.com:${IP_OrgB}"
+      # OrgC
+      - "ca.orgc.example.com:${IP_OrgC}"
+      - "peer1.orgc.example.com:${IP_OrgC}"
+      - "peer2.orgc.example.com:${IP_OrgC}"

@@ -1,0 +1,258 @@
+---
+#
+# The network connection profile provides client applications the information about the target
+# blockchain network that are necessary for the applications to interact with it. These are all
+# knowledge that must be acquired from out-of-band sources. This file provides such a source.
+#
+name: "simple-blockchain"
+
+#
+# Any properties with an "x-" prefix will be treated as application-specific, exactly like how naming
+# in HTTP headers or swagger properties work. The SDK will simply ignore these fields and leave
+# them for the applications to process. This is a mechanism for different components of an application
+# to exchange information that are not part of the standard schema described below. In particular,
+# the "x-type" property with the "hlfv1" value example below is used by Hyperledger Composer to
+# determine the type of Fabric networks (v0.6 vs. v1.0) it needs to work with.
+#
+x-type: "hlfv1"
+
+#
+# Describe what the target network is/does.
+#
+description: "Blockchain Sample Network"
+
+#
+# Schema version of the content. Used by the SDK to apply the corresponding parsing rules.
+#
+version: "1.0"
+
+#
+# The client section will be added on a per org basis see org1.yaml and org2.yaml
+#
+#client:
+
+#
+# [Optional]. But most apps would have this section so that channel objects can be constructed
+# based on the content below. If an app is creating channels, then it likely will not need this
+# section.
+#
+channels:
+  # name of the channel
+  channel:
+    # Required. list of orderers designated by the application to use for transactions on this
+    # channel. This list can be a result of access control ("org1" can only access "ordererA"), or
+    # operational decisions to share loads from applications among the orderers.  The values must
+    # be "names" of orgs defined under "organizations/peers"
+    orderers:
+      # - orderer1.example.com
+      # - orderer2.example.com
+      - orderer3.example.com
+
+    # Required. list of peers from participating orgs
+    peers:
+
+      peer1.orga.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: false
+        eventSource: false
+
+      peer1.orgb.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: false
+        eventSource: false
+
+      peer1.orgc.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+    chaincodes:
+      # the format follows the "cannonical name" of chaincodes by fabric code
+      - cc:v0
+
+  channel-0:
+
+    orderers:
+      # - orderer1.example.com
+      # - orderer2.example.com
+      - orderer3.example.com
+
+    peers:
+
+      peer1.orga.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: false
+        eventSource: false
+
+      peer1.orgb.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: false
+        eventSource: false
+
+      peer1.orgc.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+    chaincodes:
+      - cc:v0
+
+  channel-1:
+
+    orderers:
+      # - orderer1.example.com
+      # - orderer2.example.com
+      - orderer3.example.com
+
+    peers:
+
+      peer2.orga.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: false
+        eventSource: false
+
+      peer2.orgb.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: false
+        eventSource: false
+      
+      peer2.orgc.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+    chaincodes:
+      - cc:v0
+  
+#
+# list of participating organizations in this network
+#
+organizations:
+
+  OrgC:
+    mspid: OrgCMSP
+    peers:
+      - peer1.orgc.example.com
+    certificateAuthorities:
+      - ca-orgc
+    adminPrivateKey:
+      path: ./channel/crypto-config-orgc/peerOrganizations/orgc.example.com/users/Admin@orgc.example.com/msp/keystore/082c4f8e19b28c37d8d8e6b422040fa493c3a25bf3a0c32df40e497172637c47_sk
+    signedCert:
+      path: ./channel/crypto-config-orgc/peerOrganizations/orgc.example.com/users/Admin@orgc.example.com/msp/signcerts/Admin@orgc.example.com-cert.pem
+
+#
+# List of orderers to send transaction and channel create/update requests to. For the time
+# being only one orderer is needed. If more than one is defined, which one get used by the
+# SDK is implementation specific. Consult each SDK's documentation for its handling of orderers.
+#
+orderers:
+ 
+  orderer1.example.com:
+    url: grpcs://orderer1.example.com:7050
+    grpcOptions:
+      ssl-target-name-override: orderer1.example.com
+    tlsCACerts:
+      path: ./channel/crypto-config-orderers/ordererOrganizations/example.com/orderers/orderer1.example.com/tls/ca.crt
+
+  orderer2.example.com:
+    url: grpcs://orderer2.example.com:8050
+    grpcOptions:
+      ssl-target-name-override: orderer2.example.com
+    tlsCACerts:
+      path: ./channel/crypto-config-orderers/ordererOrganizations/example.com/orderers/orderer2.example.com/tls/ca.crt
+
+  orderer3.example.com:
+    url: grpcs://orderer3.example.com:9050
+    grpcOptions:
+      ssl-target-name-override: orderer3.example.com
+    tlsCACerts:
+      path: ./channel/crypto-config-orderers/ordererOrganizations/example.com/orderers/orderer3.example.com/tls/ca.crt
+
+
+#
+# List of peers to send various requests to, including endorsement, query
+# and event listener registration.
+#
+peers:
+
+  peer1.orga.example.com:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://peer1.orga.example.com:7051
+    eventUrl: grpcs://peer1.orga.example.com:7053
+    grpcOptions:
+      ssl-target-name-override: peer1.orga.example.com
+    tlsCACerts:
+      path: ./channel/crypto-config-orga/peerOrganizations/orga.example.com/peers/peer1.orga.example.com/tls/ca.crt
+
+  peer2.orga.example.com:
+    url: grpcs://peer2.orga.example.com:7056
+    eventUrl: grpcs://peer2.orga.example.com:7058
+    grpcOptions:
+      ssl-target-name-override: peer2.orga.example.com
+    tlsCACerts:
+      path: ./channel/crypto-config-orga/peerOrganizations/orga.example.com/peers/peer2.orga.example.com/tls/ca.crt
+
+  peer1.orgb.example.com:
+    url: grpcs://peer1.orgb.example.com:8051
+    eventUrl: grpcs://peer1.orgb.example.com:8053
+    grpcOptions:
+      ssl-target-name-override: peer1.orgb.example.com
+    tlsCACerts:
+      path: ./channel/crypto-config-orgb/peerOrganizations/orgb.example.com/peers/peer1.orgb.example.com/tls/ca.crt
+
+  peer2.orgb.example.com:
+    url: grpcs://peer2.orgb.example.com:8056
+    eventUrl: grpcs://peer2.orgb.example.com:8058
+    grpcOptions:
+      ssl-target-name-override: peer2.orgb.example.com
+    tlsCACerts:
+      path: ./channel/crypto-config-orgb/peerOrganizations/orgb.example.com/peers/peer2.orgb.example.com/tls/ca.crt
+
+  peer1.orgc.example.com:
+    url: grpcs://peer1.orgc.example.com:9051
+    eventUrl: grpcs://peer1.orgc.example.com:9053
+    grpcOptions:
+      ssl-target-name-override: peer1.orgc.example.com
+    tlsCACerts:
+      path: ./channel/crypto-config-orgc/peerOrganizations/orgc.example.com/peers/peer1.orgc.example.com/tls/ca.crt
+
+  peer2.orgc.example.com:
+    url: grpcs://peer2.orgc.example.com:9056
+    eventUrl: grpcs://peer2.orgc.example.com:9058
+    grpcOptions:
+      ssl-target-name-override: peer2.orgc.example.com
+    tlsCACerts:
+      path: ./channel/crypto-config-orgc/peerOrganizations/orgc.example.com/peers/peer2.orgc.example.com/tls/ca.crt
+
+#
+# Fabric-CA is a special kind of Certificate Authority provided by Hyperledger Fabric which allows
+# certificate management to be done via REST APIs. Application may choose to use a standard
+# Certificate Authority instead of Fabric-CA, in which case this section would not be specified.
+#
+certificateAuthorities:
+
+  ca-orgc:
+    url: https://ca.orgc.example.com:9054
+    # the properties specified under this object are passed to the 'http' client verbatim when
+    # making the request to the Fabric-CA server
+    httpOptions:
+      verify: true
+    tlsCACerts:
+      path: ./channel/crypto-config-orgc/peerOrganizations/orgc.example.com/ca/ca.orgc.example.com-cert.pem
+
+    # Fabric-CA supports dynamic user enrollment via REST APIs. A "root" user, a.k.a registrar, is
+    # needed to enroll and invoke new users.
+    registrar:
+      - enrollId: admin
+        enrollSecret: adminpw
+    # [Optional] The optional name of the CA.
+    caName: ca-orgc
