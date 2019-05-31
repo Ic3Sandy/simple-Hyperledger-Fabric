@@ -1,0 +1,59 @@
+version: '2'
+
+services:
+
+  ca.orga.example.com:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-orga
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.orga.example.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/316809f4fb51243b2e98720f4142b6170d7d124e8ca25878158285c6841949b0_sk
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.orga.example.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/316809f4fb51243b2e98720f4142b6170d7d124e8ca25878158285c6841949b0_sk
+    ports:
+      - 7054:7054
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ./channel/crypto-config-orga/peerOrganizations/orga.example.com/ca:/etc/hyperledger/fabric-ca-server-config
+      - ./config/fabric-ca-server-orga.yaml:/etc/hyperledger/fabric-ca-server/fabric-ca-server-config.yaml
+    container_name: ca_peerOrgA
+  
+  peer1.orga.example.com:
+    container_name: peer1.orga.example.com
+    extends:
+      file:   base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.orga.example.com
+      - CORE_PEER_LOCALMSPID=OrgAMSP
+      - CORE_PEER_ADDRESS=peer1.orga.example.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer2.orga.example.com:7051      
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.orga.example.com:7051
+    ports:
+      - 7051:7051
+      - 7053:7053
+    volumes:
+        - ./channel/crypto-config-orga/peerOrganizations/orga.example.com/peers/peer1.orga.example.com/:/etc/hyperledger/crypto/peer
+    # extra_hosts:
+    #   - "orderer.example.com:${IP_Orderer}"
+
+  peer2.orga.example.com:
+    container_name: peer2.orga.example.com
+    extends:
+      file:   base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer2.orga.example.com
+      - CORE_PEER_LOCALMSPID=OrgAMSP
+      - CORE_PEER_ADDRESS=peer2.orga.example.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.orga.example.com:7051      
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer2.orga.example.com:7051
+    ports:
+      - 7056:7051
+      - 7058:7053
+    volumes:
+        - ./channel/crypto-config-orga/peerOrganizations/orga.example.com/peers/peer2.orga.example.com/:/etc/hyperledger/crypto/peer
+    # extra_hosts:
+    #   - "orderer.example.com:${IP_Orderer}"

@@ -1,0 +1,53 @@
+version: '2'
+
+services:
+
+  couchdb.peer1.orgb:
+    container_name: couchdb.peer1.orgb
+    image: hyperledger/fabric-couchdb
+    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
+    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    environment:
+      - COUCHDB_USER=ic3
+      - COUCHDB_PASSWORD=qaz
+    # Comment/Uncomment the port mapping if you want to hide/expose the CouchDB service,
+    # for example map it to utilize Fauxton User Interface in dev environments.
+    ports:
+      - 7984:5984
+
+  peer1.orgb.example.com:
+    environment:
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer1.orgb:5984
+      # The CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME and CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD
+      # provide the credentials for ledger to connect to CouchDB.  The username and password must
+      # match the username and password set for the associated CouchDB.
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=ic3
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=qaz
+    depends_on:
+      - couchdb.peer1.orgb
+
+  # couchdb.peer2.orgb:
+  #   container_name: couchdb.peer2.orgb
+  #   image: hyperledger/fabric-couchdb
+  #   # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
+  #   # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+  #   environment:
+  #     - COUCHDB_USER=ic3
+  #     - COUCHDB_PASSWORD=qaz
+  #   # Comment/Uncomment the port mapping if you want to hide/expose the CouchDB service,
+  #   # for example map it to utilize Fauxton User Interface in dev environments.
+  #   ports:
+  #     - 8984:5984
+
+  # peer2.orgb.example.com:
+  #   environment:
+  #     - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+  #     - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer2.orgb:5984
+  #     # The CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME and CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD
+  #     # provide the credentials for ledger to connect to CouchDB.  The username and password must
+  #     # match the username and password set for the associated CouchDB.
+  #     - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=ic3
+  #     - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=qaz
+  #   depends_on:
+  #     - couchdb.peer2.orgb
