@@ -1,0 +1,19 @@
+# ---------------------------------------------------------------------------
+# "PeerOrgs" - Definition of organizations managing peer nodes
+# ---------------------------------------------------------------------------
+PeerOrgs:
+  # ---------------------------------------------------------------------------
+  # OrgB: See "OrgA" for full specification
+  # ---------------------------------------------------------------------------
+  - Name: OrgB
+    Domain: orgb.example.com
+    EnableNodeOUs: true
+    CA:
+       Hostname: ca
+    Template:
+      Count: 2
+      Start: 1
+      SANS:
+        - "localhost"
+    Users:
+      Count: 1
